@@ -1,5 +1,6 @@
-﻿using BethanysPieShopHRM.Shared;
+﻿using BethanysPieShopServer.Components;
 using BethanysPieShopServer.Services;
+using BethanysPieShopHRM.Shared;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -10,17 +11,25 @@ namespace BethanysPieShopServer.Pages
 {
     public class EmployeeOverviewBase : ComponentBase
     {
-        [Parameter]
-        public string EmployeeId { get; set; }
-
         [Inject]
         public IEmployeeDataService EmployeeDataService { get; set; }
 
-        protected async override Task OnInitializedAsync()
+        public IEnumerable<Employee> Employees { get; set; }
+        protected AddEmployeeDialog AddEmployeeDialog { get; set; }
+
+        protected override async Task OnInitializedAsync()
         {
-            Employees = (await EmployeeDataService.GetAllEmployees()).ToList(); ;
+            Employees = (await EmployeeDataService.GetAllEmployees()).ToList();
+        }
+        public async void AddEmployeeDialog_OnDialogClose()
+        {
+            Employees = (await EmployeeDataService.GetAllEmployees()).ToList();
+            StateHasChanged();
         }
 
-        public IEnumerable<Employee> Employees { get; set; }
+        protected void QuickAddEmployee()
+        {
+            AddEmployeeDialog.Show();
+        }
     }
 }
