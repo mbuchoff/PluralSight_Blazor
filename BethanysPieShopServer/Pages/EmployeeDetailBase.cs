@@ -1,4 +1,6 @@
-﻿using BethanysPieShopHRM.Shared;
+﻿using BethanysPieShopHRM.ComponentsLibrary.Map;
+using BethanysPieShopHRM.Shared;
+using BethanysPieShopServer.Services;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -10,22 +12,26 @@ namespace BethanysPieShopServer.Pages
 {
     public class EmployeeDetailBase : ComponentBase
     {
+		[Inject]
+		public IEmployeeDataService EmployeeDataService { get; set; }
+
 		public IEnumerable<Employee> Employees { get; set; }
 
 		public Employee Employee { get; set; } = new Employee();
 
+		public List<Marker> MapMarkers { get; set; } = new List<Marker>();
+
 		[Parameter]
 		public string EmployeeId { get; set; }
 
-		protected override Task OnInitializedAsync()
+		protected override async Task OnInitializedAsync()
 		{
-			InitializeCountries();
-			InitializeJobCategories();
-			InitializeEmployees();
+			Employee = await EmployeeDataService.GetEmployeeDetails(int.Parse(EmployeeId));
 
-			Employee = Employees.FirstOrDefault(e => e.EmployeeId == int.Parse(EmployeeId, CultureInfo.CurrentCulture));
-
-			return base.OnInitializedAsync();
+			MapMarkers = new List<Marker>
+			{
+				new Marker() { Description = $"{Employee.FirstName} {Employee.LastName}", ShowPopup = false, X = Employee.Longitude, Y = Employee.Latitude }
+			};
 		}
 
 		private List<Country> Countries { get; set; }
